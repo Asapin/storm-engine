@@ -10,6 +10,8 @@
 #include "string_compare.hpp"
 #include <SDL2/SDL.h>
 
+#include "ffi.h"
+
 Core &core = core_internal;
 
 uint64_t get_performance_counter()
@@ -24,6 +26,8 @@ namespace
 ENGINE_VERSION getTargetEngineVersion(const std::string_view &version)
 {
     using namespace std::string_view_literals;
+
+    hello_world();
 
     if (iEquals(version, "sd"sv))
     {
