@@ -214,3 +214,6 @@ Procfile text
 *.exe binary
 *.out binary
 *.app binary
+# Rust
+*.rs text
+*.toml text
