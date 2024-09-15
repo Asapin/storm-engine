@@ -58,6 +58,9 @@ else()
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 endif()
 
+# Clear variables first
+set(global_modules_list "" CACHE INTERNAL "global_modules_list")
+
 # this is crucial to include libs first
 add_subdirectory(libs)
 add_subdirectory(apps)
