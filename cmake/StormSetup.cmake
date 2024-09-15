@@ -266,3 +266,39 @@ macro(STORM_SETUP)
       $<INSTALL_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}>)
   endforeach()
 endmacro()
+
+macro(STORM_RUST_SETUP)
+  set(options "")
+  set(oneValueArgs TARGET_NAME)
+  set(multiValueArgs "")
+  cmake_parse_arguments(_SETUP "${options}" "${oneValueArgs}"
+                        "${multiValueArgs}" ${ARGN})
+
+  if(NOT _SETUP_TARGET_NAME)
+    message(FATAL_ERROR "[StormRustSetup] No 'TARGET_NAME' specified!")
+  endif()
+
+  if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CARGO_OPTS --release)
+    set(TARGET_DIR release)
+  else ()
+    set(CARGO_OPTS)
+    set(TARGET_DIR debug)
+  endif ()
+
+  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib
+    COMMAND cargo build ${CARGO_OPTS} --target-dir=${CMAKE_CURRENT_BINARY_DIR}
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  add_custom_target(${_SETUP_TARGET_NAME}_target DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib)
+  add_library(${_SETUP_TARGET_NAME} UNKNOWN IMPORTED GLOBAL "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/include/ffi.h")
+  add_dependencies(${_SETUP_TARGET_NAME} ${_SETUP_TARGET_NAME}_target)
+  add_dependencies(${_SETUP_TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/include/ffi.h)
+  set_target_properties(${_SETUP_TARGET_NAME}
+      PROPERTIES
+      IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib
+  # becase of https://github.com/rust-lang/cargo/issues/5045
+      IMPORTED_NO_SONAME True
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/include/")
+  set_target_properties(${_SETUP_TARGET_NAME} PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/include/ffi.h")
+
+endmacro()

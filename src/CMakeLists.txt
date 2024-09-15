@@ -63,4 +63,5 @@ set(global_modules_list "" CACHE INTERNAL "global_modules_list")
 
 # this is crucial to include libs first
 add_subdirectory(libs)
+add_subdirectory(rust_ffi)
 add_subdirectory(apps)
