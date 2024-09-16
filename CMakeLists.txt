@@ -53,12 +53,15 @@ endforeach()
 
 ### Set up build scripts
 set(SRC_DIRS "src" CACHE STRING "File locations for public header files" FORCE)
+set(RUST_SRC_DIRS "src" CACHE STRING "File locations for Rust source files" FORCE)
 set(PUBLIC_INCLUDE_DIRS "include" CACHE STRING "File locations for source files" FORCE)
 set(TESTSUITE_DIRS "testsuite" CACHE STRING "File locations for tests" FORCE)
 set(RESOURCE_DIRS "rsrc" CACHE STRING "File locations for tests" FORCE)
 
 set(SOURCE_FILE_EXTENSIONS "*.cpp" CACHE STRING "File extensions for source files" FORCE)
 set(HEADER_FILE_EXTENSIONS "*.h" "*.hpp" CACHE STRING "File extensions for header files" FORCE)
+set(RS_FILE_EXTENSIONS "*.rs" CACHE STRING "File extensions for Rust source files" FORCE)
+set(TOML_FILE_EXTENSIONS "*.toml" CACHE STRING "File extensions for TOML files" FORCE)
 ###
 
 ### Copy Shader Effects

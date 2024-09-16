@@ -2,7 +2,7 @@ use std::{fs::File, io::Write};
 
 #[no_mangle]
 pub extern "C" fn hello_world() {
-    let result = write_file("string");
+    let result = write_file("Hello world");
     match result {
         Ok(()) => {},
         Err(e) => println!("Couldn't write file: {}", e)
