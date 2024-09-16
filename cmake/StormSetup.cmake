@@ -267,6 +267,35 @@ macro(STORM_SETUP)
   endforeach()
 endmacro()
 
+macro(_collect_rust_sources)
+  # parse files in the root directory
+  foreach(ext ${TOML_FILE_EXTENSIONS})
+    list(APPEND glob_patterns ${ext})
+  endforeach()
+  foreach(ext ${RS_FILE_EXTENSIONS})
+    list(APPEND glob_patterns ${ext})
+  endforeach()
+
+  file(GLOB glob_result CONFIGURE_DEPENDS ${glob_patterns})
+  list(APPEND SRCS ${glob_result})
+
+  foreach(dir ${RUST_SRC_DIRS})
+    foreach(ext ${TOML_FILE_EXTENSIONS})
+      list(APPEND recoursive_glob_patterns ${dir}/${ext})
+    endforeach()
+    foreach(ext ${RS_FILE_EXTENSIONS})
+      list(APPEND recoursive_glob_patterns ${dir}/${ext})
+    endforeach()
+  endforeach()
+
+  file(GLOB_RECURSE glob_result CONFIGURE_DEPENDS ${recoursive_glob_patterns})
+  list(APPEND SRCS ${glob_result})
+  message(
+    STATUS
+      "[StormRustSetup] Collected RUST sources for \"${_SETUP_TARGET_NAME}\": ${SRCS}"
+  )
+endmacro()
+
 macro(STORM_RUST_SETUP)
   set(options "")
   set(oneValueArgs TARGET_NAME)
@@ -286,9 +315,15 @@ macro(STORM_RUST_SETUP)
     set(TARGET_DIR debug)
   endif ()
 
-  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib
+  _collect_rust_sources()
+
+  add_custom_command(
+    DEPENDS ${SRCS}
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib
     COMMAND cargo build ${CARGO_OPTS} --target-dir=${CMAKE_CURRENT_BINARY_DIR}
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMENT "Running Cargo"
+  )
   add_custom_target(${_SETUP_TARGET_NAME}_target DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib)
   add_library(${_SETUP_TARGET_NAME} UNKNOWN IMPORTED GLOBAL "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/include/ffi.h")
   add_dependencies(${_SETUP_TARGET_NAME} ${_SETUP_TARGET_NAME}_target)
