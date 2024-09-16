@@ -10,7 +10,7 @@
 #include "string_compare.hpp"
 #include <SDL2/SDL.h>
 
-#include "ffi.h"
+#include "ffi.hpp"
 
 Core &core = core_internal;
 
@@ -27,7 +27,7 @@ ENGINE_VERSION getTargetEngineVersion(const std::string_view &version)
 {
     using namespace std::string_view_literals;
 
-    hello_world();
+    rust_ffi::hello_world();
 
     if (iEquals(version, "sd"sv))
     {

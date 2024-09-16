@@ -1,7 +1,7 @@
 use std::{fs::File, io::Write};
 
 #[no_mangle]
-pub extern "C" fn hello_world() {
+pub extern fn hello_world() {
     let result = write_file("Hello world!");
     match result {
         Ok(()) => {},
