@@ -10,8 +10,6 @@
 #include "string_compare.hpp"
 #include <SDL2/SDL.h>
 
-#include "ffi.hpp"
-
 Core &core = core_internal;
 
 uint64_t get_performance_counter()
@@ -95,12 +93,6 @@ void CoreImpl::SetWindow(std::shared_ptr<storm::OSWindow> window)
 
 void CoreImpl::Init()
 {
-    rust_ffi::init();
-    rust_ffi::trace("C trace");
-    rust_ffi::debug("C debug");
-    rust_ffi::info("C info");
-    rust_ffi::warn("C warn");
-    rust_ffi::error("C error");
     Initialized = false;
     bEngineIniProcessed = false;
     State_file_name = nullptr;
