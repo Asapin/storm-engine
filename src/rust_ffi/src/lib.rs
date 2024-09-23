@@ -1,16 +1,39 @@
-use std::{fs::File, io::Write};
+use std::ffi::c_char;
+
+mod logs;
+mod util;
 
 #[no_mangle]
-pub extern fn hello_world() {
-    let result = write_file("Hello world!");
-    match result {
-        Ok(()) => {},
-        Err(e) => println!("Couldn't write file: {}", e)
-    };
+pub extern "C" fn init() {
+    logs::init();
 }
 
-fn write_file(string: &str) -> std::io::Result<()> {
-    let mut file = File::create("foo.txt")?;
-    file.write_all(string.as_bytes())?;
-    Ok(())
+#[no_mangle]
+pub extern "C" fn trace(msg: *const c_char) {
+    let msg = util::c_str_to_rust(msg);
+    log::trace!("{}", msg)
+}
+
+#[no_mangle]
+pub extern "C" fn debug(msg: *const c_char) {
+    let msg = util::c_str_to_rust(msg);
+    log::debug!("{}", msg)
+}
+
+#[no_mangle]
+pub extern "C" fn info(msg: *const c_char) {
+    let msg = util::c_str_to_rust(msg);
+    log::info!("{}", msg)
+}
+
+#[no_mangle]
+pub extern "C" fn warn(msg: *const c_char) {
+    let msg = util::c_str_to_rust(msg);
+    log::warn!("{}", msg)
+}
+
+#[no_mangle]
+pub extern "C" fn error(msg: *const c_char) {
+    let msg = util::c_str_to_rust(msg);
+    log::error!("{}", msg)
 }

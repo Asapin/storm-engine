@@ -7,3 +7,4 @@
 src/rust_ffi/Cargo.lock
 /src/rust_ffi/target
 .vscode/settings.json
+/src/rust_ffi/build
