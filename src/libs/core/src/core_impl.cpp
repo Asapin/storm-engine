@@ -27,8 +27,6 @@ ENGINE_VERSION getTargetEngineVersion(const std::string_view &version)
 {
     using namespace std::string_view_literals;
 
-    rust_ffi::hello_world();
-
     if (iEquals(version, "sd"sv))
     {
         return ENGINE_VERSION::SEA_DOGS;
@@ -97,6 +95,12 @@ void CoreImpl::SetWindow(std::shared_ptr<storm::OSWindow> window)
 
 void CoreImpl::Init()
 {
+    rust_ffi::init();
+    rust_ffi::trace("C trace");
+    rust_ffi::debug("C debug");
+    rust_ffi::info("C info");
+    rust_ffi::warn("C warn");
+    rust_ffi::error("C error");
     Initialized = false;
     bEngineIniProcessed = false;
     State_file_name = nullptr;
