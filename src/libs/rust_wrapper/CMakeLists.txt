@@ -1,5 +1,5 @@
 STORM_SETUP(
     TARGET_NAME rust_wrapper
-    TYPE storm_module
+    TYPE library
     DEPENDENCIES rust_ffi
 )

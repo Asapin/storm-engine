@@ -10,6 +10,7 @@
 #include "message.h"
 #include "os_window.hpp"
 #include "platform/platform.hpp"
+#include "rust.hpp"
 #include "shared/layers.h"
 #include "v_data.h"
 #include "v_file_service.h"
