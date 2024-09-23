@@ -9,6 +9,7 @@
 #include "fs.h"
 #include "lifecycle_diagnostics_service.hpp"
 #include "logging.hpp"
+#include "rust.hpp"
 #include "os_window.hpp"
 #include "steam_api.hpp"
 #include "storm/engine_settings.hpp"
@@ -166,9 +167,10 @@ int main(int argc, char *argv[])
     create_directories(storm::GetEngineSettings().GetEnginePath(storm::EngineSettingsPathType::SaveData));
 
     // Init logging
+    rust::init();
     spdlog::set_default_logger(storm::logging::getOrCreateLogger(defaultLoggerName));
-    spdlog::info("Logging system initialized. Running on {}", STORM_BUILD_WATERMARK_STRING);
-    spdlog::info("mimalloc-redirect status: {}", mi_is_redirected());
+    rust::info("Rust: Logging system initialized. Running on {}", STORM_BUILD_WATERMARK_STRING);
+    rust::info("Rust: mimalloc-redirect status: {}", mi_is_redirected());
 
     // Init core
     core_private = static_cast<CorePrivate *>(&core);
@@ -216,7 +218,7 @@ int main(int argc, char *argv[])
     }
     catch (const std::exception &e)
     {
-        spdlog::critical(e.what());
+        rust::error(e.what());
         return EXIT_FAILURE;
     }
 
