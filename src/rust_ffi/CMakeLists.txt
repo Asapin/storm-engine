@@ -1,0 +1,3 @@
+STORM_RUST_SETUP(
+    TARGET_NAME rust_ffi
+)

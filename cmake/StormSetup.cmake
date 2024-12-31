@@ -222,7 +222,6 @@ macro(STORM_SETUP)
     if(NOT WIN32)
       list(APPEND target_link_flags "-Wl,--whole-archive")
     endif()
-    list(REMOVE_DUPLICATES global_modules_list)
     list(APPEND _SETUP_DEPENDENCIES "${global_modules_list}")
     foreach(module ${global_modules_list})
       if(TARGET ${module})
@@ -266,4 +265,72 @@ macro(STORM_SETUP)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}>
       $<INSTALL_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${dir}>)
   endforeach()
+endmacro()
+
+macro(_collect_rust_sources)
+  # parse files in the root directory
+  foreach(ext ${TOML_FILE_EXTENSIONS})
+    list(APPEND glob_patterns ${ext})
+  endforeach()
+  foreach(ext ${RS_FILE_EXTENSIONS})
+    list(APPEND glob_patterns ${ext})
+  endforeach()
+
+  file(GLOB glob_result CONFIGURE_DEPENDS ${glob_patterns})
+  list(APPEND SRCS ${glob_result})
+
+  foreach(dir ${RUST_SRC_DIRS})
+    foreach(ext ${TOML_FILE_EXTENSIONS})
+      list(APPEND recoursive_glob_patterns ${dir}/${ext})
+    endforeach()
+    foreach(ext ${RS_FILE_EXTENSIONS})
+      list(APPEND recoursive_glob_patterns ${dir}/${ext})
+    endforeach()
+  endforeach()
+
+  file(GLOB_RECURSE glob_result CONFIGURE_DEPENDS ${recoursive_glob_patterns})
+  list(APPEND SRCS ${glob_result})
+  message(
+    STATUS
+      "[StormRustSetup] Collected RUST sources for \"${_SETUP_TARGET_NAME}\": ${SRCS}"
+  )
+endmacro()
+
+macro(STORM_RUST_SETUP)
+  set(options "")
+  set(oneValueArgs TARGET_NAME)
+  set(multiValueArgs "")
+  cmake_parse_arguments(_SETUP "${options}" "${oneValueArgs}"
+                        "${multiValueArgs}" ${ARGN})
+
+  if(NOT _SETUP_TARGET_NAME)
+    message(FATAL_ERROR "[StormRustSetup] No 'TARGET_NAME' specified!")
+  endif()
+
+  if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CARGO_OPTS --release)
+    set(TARGET_DIR release)
+  else ()
+    set(CARGO_OPTS)
+    set(TARGET_DIR debug)
+  endif ()
+
+  _collect_rust_sources()
+
+  add_custom_command(
+    DEPENDS ${SRCS}
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib
+    COMMAND cargo build ${CARGO_OPTS} --target-dir=${CMAKE_CURRENT_BINARY_DIR}
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMENT "Running Cargo"
+  )
+  add_custom_target(${_SETUP_TARGET_NAME}_target DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib)
+  add_library(${_SETUP_TARGET_NAME} UNKNOWN IMPORTED GLOBAL)
+  add_dependencies(${_SETUP_TARGET_NAME} ${_SETUP_TARGET_NAME}_target)
+  set_target_properties(${_SETUP_TARGET_NAME}
+    PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/${_SETUP_TARGET_NAME}.dll.lib
+    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/include/"
+  )
+
 endmacro()
