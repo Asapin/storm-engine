@@ -4,6 +4,7 @@
 #include <mimalloc-new-delete.h>
 #include <mimalloc.h>
 #include <spdlog/spdlog.h>
+#include <CLI/CLI.hpp>
 
 #include "core_private.h"
 #include "fs.h"
@@ -122,6 +123,20 @@ void HandleWindowEvent(const storm::OSWindow::Event &event)
 
 int main(int argc, char *argv[])
 {
+    CLI::App app("Storm Engine");
+
+    bool enable_editor = false;
+    app.add_flag("--editor", enable_editor, "Enable in-game editor");
+
+    try
+    {
+        app.parse(argc, argv);
+    }
+    catch (const CLI::ParseError &e)
+    {
+        return app.exit(e);
+    }
+
     // Prevent multiple instances
 #ifdef _WIN32 // CreateEventA
     if (!CreateEventA(nullptr, false, false, "Global\\FBBD2286-A9F1-4303-B60C-743C3D7AA7BE") ||
@@ -137,10 +152,10 @@ int main(int argc, char *argv[])
     mi_option_set(mi_option_eager_commit, 1);
     mi_option_set(mi_option_eager_region_commit, 1);
     mi_option_set(mi_option_large_os_pages, 1);
-    mi_option_set(mi_option_page_reset, 0);
-    mi_option_set(mi_option_segment_reset, 0);
+//    mi_option_set(mi_option_page_reset, 0);
+//    mi_option_set(mi_option_segment_reset, 0);
     mi_option_set(mi_option_reserve_huge_os_pages, 1);
-    mi_option_set(mi_option_segment_cache, 16);
+//    mi_option_set(mi_option_segment_cache, 16);
 #ifdef _DEBUG
     mi_option_set(mi_option_verbose, 4);
 #endif
@@ -174,6 +189,7 @@ int main(int argc, char *argv[])
 
     // Init core
     core_private = static_cast<CorePrivate *>(&core);
+    core_private->EnableEditor(enable_editor);
     core_private->Init();
 
     // Read config
@@ -238,8 +254,13 @@ int main(int argc, char *argv[])
     isRunning = true;
     while (isRunning)
     {
-        SDL_PumpEvents();
-        SDL_FlushEvents(0, SDL_LASTEVENT);
+        SDL_Event event{};
+        while (SDL_PollEvent(&event) )
+        {
+            if (auto *editor = core.GetEditor(); editor != nullptr) {
+                editor->ProcessEvent(event);
+            }
+        }
 
         if (bActive || run_in_background)
         {
