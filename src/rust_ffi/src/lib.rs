@@ -11,6 +11,7 @@ pub mod config;
 pub mod core;
 pub mod diagnostics;
 pub mod dialog;
+pub mod editor;
 pub mod ffi_util;
 pub mod geometry;
 pub mod input;
