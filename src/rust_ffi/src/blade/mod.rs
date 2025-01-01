@@ -1,10 +1,13 @@
 use windows::Win32::Graphics::Direct3D9::{D3DFVF_DIFFUSE, D3DFVF_XYZ};
 
+use crate::math::vector::Vector3;
+
 const ITEMS_INFO_QUANTITY: usize = 10;
 const FVF: u32 = D3DFVF_XYZ | D3DFVF_DIFFUSE;
 const WAY_LENGTH: usize = 64;
 
 pub struct Vertex {
+    pos: Vector3,
     diffuse: u32
 }
 

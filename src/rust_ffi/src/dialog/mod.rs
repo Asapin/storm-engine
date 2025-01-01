@@ -1,6 +1,8 @@
 use link_describe::DlgLinkDescribe;
 use windows::Win32::{Foundation::POINT, Graphics::Direct3D9::{D3DFVF_DIFFUSE, D3DFVF_TEX1, D3DFVF_TEXTUREFORMAT2, D3DFVF_XYZRHW}};
 
+use crate::math::vector::Vector3;
+
 pub mod legacy_dialog;
 pub mod link_describe;
 
@@ -16,6 +18,7 @@ const BUTTON_STATE_UP_LIGHT: u8 = 4;
 const BUTTON_STATE_DOWN_LIGHT: u8 = 8;
 
 pub struct XiTexVertex {
+    pos: Vector3,
     rhw: f32,
     color: u32,
     u: f32,
