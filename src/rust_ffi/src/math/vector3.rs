@@ -1,5 +1,3 @@
-use std::ops::Add;
-
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
@@ -7,6 +5,10 @@ pub struct Vector3 {
 }
 
 impl Vector3 {
+    pub fn zero() -> Self {
+        Self { x: 0.0, y: 0.0, z: 0.0 }
+    }
+
     pub fn new_1f(a: f32) -> Self {
         Self { x: a, y: a, z: a }
     }
@@ -22,5 +24,15 @@ impl Vector3 {
 
     pub fn new_3d(x: f64, y: f64, z: f64) -> Self {
         Self { x: x as f32, y: y as f32, z: z as f32 }
+    }
+
+    pub fn copy(v: &Self) -> Self {
+        Self { x: v.x, y: v.y, z: v.z }
+    }
+
+    pub fn copy_values(&mut self, v: &Self) {
+        self.x = v.x;
+        self.y = v.y;
+        self.z = v.z;
     }
 }
